@@ -5,20 +5,32 @@ import (
 	"log"
 	"net/http"
 	"time"
-
+	"fmt"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 
+
+	httpPort := 8081
+
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/test", Test)
 	router.HandleFunc("/funci/{name}", Hola)
+	router.HandleFunc("/info", Info)
 
-	log.Fatal(http.ListenAndServe(":8081", router))
+	fmt.Printf("listening on %v\n", httpPort)
+
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+
+	err := http.ListenAndServe(fmt.Sprintf(":%d", httpPort), logRequest(router))
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func Test(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	response := HipChatResponse{Area: "Developer Support", Identificacao: "Guru Joao", Matricula: "Z123456", Funcao: "Especialista"}
 	json.NewEncoder(w).Encode(response)
 }
@@ -26,6 +38,7 @@ func Test(w http.ResponseWriter, r *http.Request) {
 func Hola(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	name := vars["name"]
+	w.Header().Set("Content-Type", "application/json")
 	response := HipChatResponse{Area: "Developer Environment", Identificacao: "Guri " + name, Matricula: "X123456", Funcao: "Trainee"}
 	json.NewEncoder(w).Encode(response)
 }
@@ -35,6 +48,17 @@ type HipChatResponse struct {
 	Identificacao       string `json:"identificacao"`
 	Matricula        string `json:"matricula"`
 	Funcao string `json:"funcao"`
+}
+
+func Info(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "<h1>Go API</h1><div>Welcome to whereever you are</div>")
+}
+
+func logRequest(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s %s %s\n", r.RemoteAddr, r.Method, r.URL)
+		handler.ServeHTTP(w, r)
+	})
 }
 
 type HipChatrequest struct {
