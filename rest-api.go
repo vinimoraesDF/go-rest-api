@@ -13,28 +13,28 @@ func main() {
 
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/test", Test)
-	router.HandleFunc("/hello/{name}", Hola)
+	router.HandleFunc("/funci/{name}", Hola)
 
 	log.Fatal(http.ListenAndServe(":8081", router))
 }
 
 func Test(w http.ResponseWriter, r *http.Request) {
-	response := HipChatResponse{Color: "yellow", Message: "This is a Test", Notify: "false", MessageFormat: "text"}
+	response := HipChatResponse{Area: "Developer Support", Identificacao: "Guru Joao", Matricula: "Z123456", Funcao: "Especialista"}
 	json.NewEncoder(w).Encode(response)
 }
 
 func Hola(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	name := vars["name"]
-	response := HipChatResponse{Color: "yellow", Message: "Hola " + name, Notify: "false", MessageFormat: "text"}
+	response := HipChatResponse{Area: "Developer Environment", Identificacao: "Guri " + name, Matricula: "X123456", Funcao: "Trainee"}
 	json.NewEncoder(w).Encode(response)
 }
 
 type HipChatResponse struct {
-	Color         string `json:"color"`
-	Message       string `json:"message"`
-	Notify        string `json:"notify"`
-	MessageFormat string `json:"message_format"`
+	Area         string `json:"area"`
+	Identificacao       string `json:"identificacao"`
+	Matricula        string `json:"matricula"`
+	Funcao string `json:"funcao"`
 }
 
 type HipChatrequest struct {
